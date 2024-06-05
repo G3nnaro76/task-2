@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Context>
+    <title>Updated Title</title>
     <Resource name="jdbc/storage"
         auth="Container"
         driverClassName="com.mysql.cj.jdbc.Driver"
