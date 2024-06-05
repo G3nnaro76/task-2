@@ -1,6 +1,7 @@
 package it.unisa.model;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class ProdottoDao implements ProdottoDaoInterfaccia{
 
@@ -146,86 +150,87 @@ public class ProdottoDao implements ProdottoDaoInterfaccia{
 
 	@Override
 	public synchronized ArrayList<ProdottoBean> doRetrieveAll(String order) throws SQLException {
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
+	    Connection connection = null;
+	    PreparedStatement preparedStatement = null;
+	    ArrayList<ProdottoBean> products = new ArrayList<ProdottoBean>();
 
-		ArrayList<ProdottoBean> products = new ArrayList<ProdottoBean>();
+	    String selectSQL = "SELECT * FROM " + ProdottoDao.TABLE_NAME;
 
-		String selectSQL = "SELECT * FROM " + ProdottoDao.TABLE_NAME;
+	    // Elenco delle colonne valide per l'ordinamento
+	    List<String> validColumns = Arrays.asList("ID_PRODOTTO", "NOME", "DESCRIZIONE", "PREZZO", "QUANTITA", "PIATTAFORMA", "IVA", "DATA_USCITA", "IN_VENDITA", "IMMAGINE", "GENERE", "DESCRIZIONE_DETTAGLIATA");
 
-		if (order != null && !order.equals("")) {
-			selectSQL += " ORDER BY " + order;
-		}
+	    if (order != null && !order.equals("") && validColumns.contains(order.toUpperCase())) {
+	        selectSQL += " ORDER BY " + order;
+	    }
 
-		try {
-			connection = ds.getConnection();
-			preparedStatement = connection.prepareStatement(selectSQL);
+	    try {
+	        connection = ds.getConnection();
+	        preparedStatement = connection.prepareStatement(selectSQL);
 
-			ResultSet rs = preparedStatement.executeQuery();
+	        ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
-				ProdottoBean bean = new ProdottoBean();
+	        while (rs.next()) {
+	            ProdottoBean bean = new ProdottoBean();
 
-				bean.setIdProdotto(rs.getInt("ID_PRODOTTO"));
-				bean.setNome(rs.getString("NOME"));
-				bean.setDescrizione(rs.getString("DESCRIZIONE"));
-				bean.setPrezzo(rs.getDouble("PREZZO"));
-				bean.setQuantità(rs.getInt("QUANTITA"));
-				bean.setPiattaforma(rs.getString("PIATTAFORMA"));
-				bean.setIva(rs.getString("IVA"));
-				bean.setDataUscita(rs.getString("DATA_USCITA"));
-				bean.setInVendita(rs.getBoolean("IN_VENDITA"));
-				bean.setImmagine(rs.getString("IMMAGINE"));
-				bean.setGenere(rs.getString("GENERE"));
-				bean.setDescrizioneDettagliata(rs.getString("DESCRIZIONE_DETTAGLIATA"));
+	            bean.setIdProdotto(rs.getInt("ID_PRODOTTO"));
+	            bean.setNome(rs.getString("NOME"));
+	            bean.setDescrizione(rs.getString("DESCRIZIONE"));
+	            bean.setPrezzo(rs.getDouble("PREZZO"));
+	            bean.setQuantità(rs.getInt("QUANTITA"));
+	            bean.setPiattaforma(rs.getString("PIATTAFORMA"));
+	            bean.setIva(rs.getString("IVA"));
+	            bean.setDataUscita(rs.getString("DATA_USCITA"));
+	            bean.setInVendita(rs.getBoolean("IN_VENDITA"));
+	            bean.setImmagine(rs.getString("IMMAGINE"));
+	            bean.setGenere(rs.getString("GENERE"));
+	            bean.setDescrizioneDettagliata(rs.getString("DESCRIZIONE_DETTAGLIATA"));
 
-				products.add(bean);
-			}
+	            products.add(bean);
+	        }
 
-		} finally {
-			try {
-				if (preparedStatement != null)
-					preparedStatement.close();
-			} finally {
-				if (connection != null)
-					connection.close();
-			}
-		}
-		return products;
+	    } finally {
+	        try {
+	            if (preparedStatement != null)
+	                preparedStatement.close();
+	        } finally {
+	            if (connection != null)
+	                connection.close();
+	        }
+	    }
+	    return products;
 	}
-	
+
 	@Override
 	public synchronized void doUpdateQnt(int id, int qnt) throws SQLException {
 
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
+	    Connection connection = null;
+	    PreparedStatement preparedStatement = null;
 
-		String updateSQL = "UPDATE " + ProdottoDao.TABLE_NAME
-				+ " SET QUANTITA = ? "
-				+ " WHERE ID_PRODOTTO = ? ";
+	    String updateSQL = "UPDATE " + ProdottoDao.TABLE_NAME
+	            + " SET QUANTITA = ? "
+	            + " WHERE ID_PRODOTTO = ? ";
 
-		try {
-			connection = ds.getConnection();
-			connection.setAutoCommit(false);
-			preparedStatement = connection.prepareStatement(updateSQL);
-			preparedStatement.setInt(1, qnt);
-			preparedStatement.setInt(2, id);
+	    try {
+	        connection = ds.getConnection();
+	        connection.setAutoCommit(false);
+	        preparedStatement = connection.prepareStatement(updateSQL);
+	        preparedStatement.setInt(1, qnt);
+	        preparedStatement.setInt(2, id);
 
-			
+	        preparedStatement.executeUpdate();
 
-			preparedStatement.executeUpdate();
-
-			connection.commit();
-		} finally {
-			try {
-				if (preparedStatement != null)
-					preparedStatement.close();
-			} finally {
-				if (connection != null)
-					connection.close();
-			}
-		}
+	        connection.commit();
+	    } finally {
+	        try {
+	            if (preparedStatement != null)
+	                preparedStatement.close();
+	        } finally {
+	            if (connection != null)
+	                connection.close();
+	        }
+	    }
 	}
+
 	
 	public synchronized void doUpdate(ProdottoBean product) throws SQLException {
 
