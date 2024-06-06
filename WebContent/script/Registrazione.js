@@ -11,11 +11,15 @@ function checkNomeCognome(inputtxt) {
 
 
 function checkEmail(inputtxt) {
-	var email = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-	if(inputtxt.value.match(email)) 
-		return true;
-	
-	return false;	
+    // Limita la lunghezza dell'input a un massimo di 254 caratteri
+    if (inputtxt.value.length > 254) return false;
+
+    // Regex migliorata per la validazione delle email
+    var email = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (inputtxt.value.match(email)) 
+        return true;
+    
+    return false;    
 }
 
 
